@@ -83,7 +83,7 @@ EPA1352_Transport_Network_Analysis/
 
 ## Usage
 
-Navigate to each stage folder and run the respective scripts as follows:
+Navigate to each stage folder and access the Jupyter scripts as follows:
 
 ### Data Quality Analysis (Stage 1): 
 Execute the data cleaning scripts in Stage1_DataQuality/scripts/.
