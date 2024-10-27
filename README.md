@@ -85,10 +85,17 @@ EPA1352_Transport_Network_Analysis/
 
 Navigate to each stage folder and run the respective scripts as follows:
 
-### Data Quality Analysis (Stage 1): Execute the data cleaning scripts in Stage1_DataQuality/scripts/.
-### Component-Based Simulation (Stage 2): Run model_viz.py or model_run.py in Stage2_ComponentBuilding/model/.
-### Network Model Simulation (Stage 3): Run model_viz.py or model_run.py in Stage3_NetworkModel/model/.
-### Network Analysis (Stage 4): Use the scripts in Stage4_NetworkAnalysis/analysis/ to visualize and analyze results.
+### Data Quality Analysis (Stage 1): 
+Execute the data cleaning scripts in Stage1_DataQuality/scripts/.
+
+### Component-Based Simulation (Stage 2): 
+Run model_viz.py or model_run.py in Stage2_ComponentBuilding/model/.
+
+### Network Model Simulation (Stage 3): 
+Run model_viz.py or model_run.py in Stage3_NetworkModel/model/.
+
+### Network Analysis (Stage 4): 
+Use the scripts in Stage4_NetworkAnalysis/analysis/ to visualize and analyze results.
 
 
 ## License
