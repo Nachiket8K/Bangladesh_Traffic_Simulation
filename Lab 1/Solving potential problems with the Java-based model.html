@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html><head>
+</head>
+<body style="font-family: arial, helvetica, sans-serif;font-size: 16px;">
+<p><strong>Java version is 32-bit instead of 64-bit</strong><br>If your model does not open at all, and you get an error (after 5 minutes or so) such as:</p>
+<p>.data.shapefile.dbf.DbaseFileReader<br>Exception in thread "AWT-EventQueue-0" java.lang.OutOfMemoryError: Java heap space<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.misc.FDBigInteger.leftShift(Unknown Source)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.misc.FloatingDecimal$ASCIIToBinaryBuffer.doubleValue(Unknown Source)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.misc.FloatingDecimal.parseDouble(Unknown Source)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at java.lang.Double.parseDouble(Unknown Source)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ... (lots more lines)<br><br>then there is a big chance that you installed a&nbsp;<strong>32-bit</strong>&nbsp;version of Java instead of a&nbsp;<strong>64-bit</strong>&nbsp;version. To find out, open a CMD-window, and type:&nbsp;<strong>java -version</strong></p>
+<p>If you get:</p>
+<p>E:\WBSIM&gt;java -version<br>java version "1.8.0_121"<br>Java(TM) SE Runtime Environment (build 1.8.0_121-b13)<br>Java HotSpot(TM) Client VM (build 25.121-b13, mixed mode)</p>
+<p>you have a 32-bit version. You can see that on the&nbsp;<strong>bottom line</strong>. If you have a 64-bit version, you get:</p>
+<p>E:\WBSIM&gt;java -version<br>java version "1.8.0_121"<br>Java(TM) SE Runtime Environment (build 1.8.0_121-b13)<br>Java HotSpot(TM) 64-Bit Client VM (build 25.121-b13, mixed mode)</p>
+<pre></pre>
+<p>So the bottom line has to include the words '64-Bit'. It can either say "Client VM" (JRE) or "Server VM" (JDK). Both are fine. If you do not run the 64-bit version, uninstall your 32-bit version of the Java JRE or Java JDK, and install a 64-bit version instead. You can find the 64-bit version of the Java JRE for e.g., Windows, at&nbsp;<a href="https://java.com/en/download/manual.jsp" target="_blank" rel="noopener noreferrer">https://java.com/en/download/manual.jsp</a>. Choose the 64-bit offline download there, and run it. If you want the 64-bit JDK (for development of software) instead, it is at <a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html.">http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html.</a> Choose the 'x64' version, download, and install.</p>
+<p><strong>Spaces in the path name or extended characters such as Chinese in the path<br></strong>When the model opens, but the bridges don't show, usually there is a problem with the path in which the model is installed. When the model is on your desktop, or in your 'Documents' folder (or the national equivalent), you often have a problem. The best way to install it in a simple and short path, without foreign characters <em>and without spaces anywhere in the path</em>. Examples are "C:\Models\WBSIM" or "D:\classes\epa1351\wbsim" or "E:\WBSIM", which al work fine.</p>
+<p><strong>Run the model with Java 8</strong><br>The model currently does not work with Java 9 or higher. If you have Java 8 and Java 9 on your computer, you can either temporarily uninstall Java 9. Sometimes a possibility to resolve this is (when you run Windows): go to the Java control panel in 'Control Panel', go to the 'Java' tab, and make sure the Java 8 version is listed under 'System' and 'User' as the first entry.&nbsp;</p>
+<div>
+<div>
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{23}" paraid="1802083108"><strong><span xml:lang="EN-GB" data-contrast="none">How to run Java 8 when multiple Java versions are installed</span></strong></p>
+</div>
+<div>
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{33}" paraid="1625691925"><span xml:lang="EN-GB" data-contrast="none">On Windows</span><span data-ccp-props="{&quot;201341983&quot;:0,&quot;335551550&quot;:1,&quot;335551620&quot;:1,&quot;335559739&quot;:161,&quot;335559740&quot;:240}">&nbsp;</span></p>
+</div>
+<div>
+<ol style="list-style-type: decimal;" start="1" role="list">
+<li data-aria-level="1" role="listitem" data-aria-posinset="1" aria-setsize="-1" data-listid="1" data-font="Segoe UI,Times New Roman" data-leveltext="%1.">
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{41}" paraid="1098708272"><span xml:lang="EN-GB" data-contrast="none">Check your current version of Java:</span><span data-ccp-props="{&quot;201341983&quot;:0,&quot;335559739&quot;:161,&quot;335559740&quot;:240}">&nbsp;</span></p>
+</li>
+</ol>
+</div>
+<div>
+<ul style="list-style-type: disc;" role="list">
+<li data-aria-level="1" role="listitem" data-aria-posinset="1" aria-setsize="-1" data-listid="3" data-font="Symbol" data-leveltext="">
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{48}" paraid="517928045"><span xml:lang="EN-GB" data-contrast="none">Open Command Prompt by pressing Start Key + R. Type cmd and press Enter.</span><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335559685&quot;:1068,&quot;335559739&quot;:160,&quot;335559740&quot;:240}">&nbsp;</span></p>
+</li>
+<li data-aria-level="1" role="listitem" data-aria-posinset="2" aria-setsize="-1" data-listid="3" data-font="Symbol" data-leveltext="">
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{59}" paraid="739904106"><span xml:lang="EN-GB" data-contrast="none">Type "java -version" and press Enter.</span><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335559685&quot;:1068,&quot;335559739&quot;:160,&quot;335559740&quot;:240}">&nbsp;</span></p>
+</li>
+</ul>
+</div>
+</div>
+<div>
+<div>
+<ul style="list-style-type: disc;" role="list">
+<li data-aria-level="1" role="listitem" data-aria-posinset="1" aria-setsize="-1" data-listid="3" data-font="Symbol" data-leveltext="">
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{66}" paraid="692501293"><span xml:lang="EN-GB" data-contrast="none">You will see which version of Java is currently on the path. It will start with 1.X.X, so if it is 1.8.0… it is Java 8 and you don’t have to change any setting of your machine. If it is not Java 8, you need to proceed to the following steps:</span><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335559685&quot;:1068,&quot;335559739&quot;:160,&quot;335559740&quot;:240}">&nbsp;</span></p>
+</li>
+</ul>
+</div>
+<div>
+<ol style="list-style-type: decimal;" start="2" role="list">
+<li data-aria-level="1" role="listitem" data-aria-posinset="2" aria-setsize="-1" data-listid="1" data-font="Segoe UI,Times New Roman" data-leveltext="%1.">
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{89}" paraid="824651480"><span xml:lang="EN-GB" data-contrast="none">Open the Environment Variables window. Open File Explorer (Start Key + E). Right click on "My Computer" and select "Properties". Click "Advanced system settings". Click on the "Environment Variables" button in the</span>&nbsp;<br><span xml:lang="EN-GB" data-contrast="none">"Advanced" tab.</span><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335559739&quot;:160,&quot;335559740&quot;:240}">&nbsp;</span></p>
+</li>
+</ol>
+</div>
+<div>
+<ol style="list-style-type: decimal;" start="3" role="list">
+<li data-aria-level="1" role="listitem" data-aria-posinset="3" aria-setsize="-1" data-listid="1" data-font="Segoe UI,Times New Roman" data-leveltext="%1.">
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{102}" paraid="1843729104"><span xml:lang="EN-GB" data-contrast="none">Find the Path variable in System Variables and click "Edit...".</span><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335559739&quot;:160,&quot;335559740&quot;:240}">&nbsp;</span></p>
+</li>
+</ol>
+</div>
+</div>
+<div>
+<div>
+<ol style="list-style-type: decimal;" start="4" role="list">
+<li data-aria-level="1" role="listitem" data-aria-posinset="4" aria-setsize="-1" data-listid="1" data-font="Segoe UI,Times New Roman" data-leveltext="%1.">
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{113}" paraid="83752887"><span xml:lang="EN-GB" data-contrast="none">Now you need to add the path to Java 8. You need to make sure it points to the bin folder. Move this path to the first option in the list.&nbsp;It should look something like:</span>&nbsp;<br><span xml:lang="PT-BR" data-contrast="auto"></span>&nbsp;<br><span xml:lang="EN-GB" data-contrast="none">C:\Program Files\Java\jre1.8.0_321\bin</span><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335559739&quot;:160,&quot;335559740&quot;:240}">&nbsp;</span></p>
+</li>
+</ol>
+</div>
+</div>
+<div>
+<div>
+<ol style="list-style-type: decimal;" start="5" role="list">
+<li data-aria-level="1" role="listitem" data-aria-posinset="5" aria-setsize="-1" data-listid="1" data-font="Segoe UI" data-leveltext="%1.">
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{152}" paraid="519945033"><span xml:lang="EN-GB" data-contrast="none">Once you have added the correct version to the Windows PATH, type "java -version" in the Command Prompt to verify.</span><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335559739&quot;:160,&quot;335559740&quot;:240}">&nbsp;</span><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335559739&quot;:160,&quot;335559740&quot;:240}"></span><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335559739&quot;:160,&quot;335559740&quot;:240}"></span></p>
+</li>
+</ol>
+</div>
+<div>
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{163}" paraid="1167963774"><span xml:lang="EN-GB" data-contrast="none">On Mac&nbsp;</span><span data-ccp-props="{&quot;201341983&quot;:0,&quot;335551550&quot;:1,&quot;335551620&quot;:1,&quot;335559739&quot;:161,&quot;335559740&quot;:240}">&nbsp;</span></p>
+</div>
+<div>
+<ol style="list-style-type: decimal;" start="1" role="list">
+<li data-aria-level="1" role="listitem" data-aria-posinset="1" aria-setsize="-1" data-listid="12" data-font="Calibri" data-leveltext="%1.">
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{171}" paraid="1958230513"><span xml:lang="EN-GB" data-contrast="none">Open the Terminal; you can list different Java versions installed on your Mac with:</span><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335551550&quot;:1,&quot;335551620&quot;:1,&quot;335559737&quot;:0,&quot;335559739&quot;:160,&quot;335559740&quot;:240}">&nbsp;</span></p>
+</li>
+</ol>
+</div>
+<div>
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{204}" paraid="1789420952"><span xml:lang="EN-GB" data-contrast="none">/usr/libexec/java_home -V</span><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335551550&quot;:1,&quot;335551620&quot;:1,&quot;335559731&quot;:708,&quot;335559739&quot;:160,&quot;335559740&quot;:240}">&nbsp;</span></p>
+</div>
+</div>
+<div>
+<div>
+<ol style="list-style-type: decimal;" start="2" role="list">
+<li data-aria-level="1" role="listitem" data-aria-posinset="2" aria-setsize="-1" data-listid="12" data-font="Calibri" data-leveltext="%1.">
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{228}" paraid="1602075024"><span xml:lang="EN-GB" data-contrast="none">Run the Java model with a specific Java version. In this example, 1.8.301.09 is be used with:&nbsp;</span><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335551550&quot;:1,&quot;335551620&quot;:1,&quot;335559737&quot;:0,&quot;335559739&quot;:160,&quot;335559740&quot;:240}">&nbsp;</span></p>
+</li>
+</ol>
+</div>
+<div>
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{249}" paraid="124906633"><span xml:lang="EN-GB" data-contrast="none">/usr/libexec/java_home -v 1.8.301.09 --exec java -jar wbsim.jar</span><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335551550&quot;:1,&quot;335551620&quot;:1,&quot;335559731&quot;:708,&quot;335559739&quot;:160,&quot;335559740&quot;:240}">&nbsp;</span></p>
+<p paraeid="{171c94cc-ecd3-4860-8fc1-aeacf88ac7ea}{249}" paraid="124906633"><span data-ccp-props="{&quot;134233117&quot;:true,&quot;134233118&quot;:true,&quot;201341983&quot;:0,&quot;335551550&quot;:1,&quot;335551620&quot;:1,&quot;335559731&quot;:708,&quot;335559739&quot;:160,&quot;335559740&quot;:240}"></span></p>
+</div>
+</div>
+<p><strong>Computer with little (free) memory<br></strong>When you have a computer with very little memory (e.g., 2 GB), you can still get an 'out of memory' error, because the Operating System and bloatware installed on your computer take up most of the space. You can address it in different ways. One is to increase your so-called "virtual memory", which swaps data to disk if it is not used. See the Internet for some help how to do this. you could also leave out the buildings from the map (there are over a million buildings being drawn, and they consume quite some memory). To do so, you could remove the 18 lines (176-193) which say &lt;gisbeans:layer&gt;&lt;name&gt;buildings&lt;/name&gt;....&lt;/gisbeans:layer&gt; from the file gis/map.xml in the wbsim folder. I might do this standard in the next release to speed up the loading process a bit.</p>
+<p><strong>Running the model on weblogin.tudelft.nl<br></strong>If all else fails, you can still run the model on weblogin.tudelft.nl (Citrix), or in the computer rooms of TU Delft. Transfer the ZIP file of the model to your home (H:) folder and place it in the root (H:\). <a href="https://wetransfer.tudelft.nl">https://wetransfer.tudelft.nl</a> will do the job nicely -- send it to your student address from your laptop, and open it with Outlook in your Citrix environment. Start the Citrix client in your browser from weblogin.tudelft.nl, and start the TU Delft Desktop. Unzip the model with 7-Zip. Go in the Windows Explorer to H:\WBSIM, and double click the wbsim.jar file. Wait a few seconds, and see the map appear. This will also work from home or from the computer labs in the Wijnhaven building.</p>
+<p><strong>If the program still does not run<br></strong>Send an email to the TA with the output from the "java -version" command, the location where you installed the software, and a good description of the error that you get (potentially including a screen capture). One of the TAs or the teacher will help you during our next lab (or by email) to resolve the problem.</p>
+</body></html>
