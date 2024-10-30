@@ -43,16 +43,16 @@ In the final stage, we analyze the criticality and vulnerability of road segment
 ## File Structure
 
 The repository is organized as follows:
-
-EPA1352_Transport_Network_Analysis/
+```
+|EPA1352_Transport_Network_Analysis/
 │
-├── Stage1_DataQuality/             # Data quality analysis scripts, cleaned data files, and report
+├── Lab 1/ 				             # Data quality analysis scripts, cleaned data files, and report
 │   ├── data/                       # Raw and processed data for analysis
-│   ├── scripts/                    # Scripts for data validation and cleaning
+│   ├── ipynb files/                # Scripts for data validation and cleaning
 │   └── report.pdf                  # Report detailing data quality issues and solutions
 │
 ├── Stage2_ComponentBuilding/       # Component-based simulation model for goods transport
-│   ├── model/                      # Model files for component generation in Mesa
+│   ├── data/                       # Raw and processed data for analysis
 │   ├── experiments/                # Output data from different simulation scenarios
 │   └── report.pdf                  # Report on model design and experimental results
 │
@@ -63,9 +63,10 @@ EPA1352_Transport_Network_Analysis/
 │
 ├── Stage4_NetworkAnalysis/         # Analysis of network criticality and vulnerability
 │   ├── analysis/                   # Analysis scripts and visualizations for network analysis
-│   └── report.pdf                  # Final report on criticality and vulnerability analysis
+│   ├── report.pdf                  # Final report on criticality and vulnerability analysis
 │
 └── README.md                       # Project overview and setup instructions
+```
 
 
 ## Getting Started
