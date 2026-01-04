@@ -1,0 +1,30 @@
+html, body { height: 100%; margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+.topbar {
+  display: flex; gap: 16px; justify-content: space-between; align-items: center;
+  padding: 12px 14px; border-bottom: 1px solid #e6e6e6; background: #fff;
+}
+.title { font-weight: 700; }
+.subtitle { font-size: 12px; opacity: 0.75; }
+
+.controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.controls label { font-size: 12px; display: flex; gap: 8px; align-items: center; }
+.controls select, .controls button { padding: 6px 8px; }
+.controls input[type="range"] { width: 140px; }
+.time { font-variant-numeric: tabular-nums; font-size: 12px; opacity: 0.8; }
+
+main { position: relative; height: calc(100% - 54px); }
+#map { height: 100%; width: 100%; }
+
+.legend {
+  position: absolute; right: 12px; top: 12px;
+  background: rgba(255,255,255,0.95); border: 1px solid #e6e6e6;
+  border-radius: 10px; padding: 10px 12px; width: 240px;
+}
+.legendTitle { font-weight: 700; margin-bottom: 6px; }
+.legendRow { display: flex; align-items: center; gap: 8px; font-size: 12px; margin: 6px 0; }
+.swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+.swatch.road { background: #888; }
+.swatch.bridgeUp { background: #2ecc71; }
+.swatch.bridgeDown { background: #e74c3c; }
+.swatch.truck { background: #3498db; border-radius: 50%; }
+.meta { font-size: 12px; opacity: 0.85; }

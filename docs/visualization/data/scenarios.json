@@ -1,0 +1,8 @@
+{
+  "scenarios": [
+    {
+      "label": "Baseline (placeholder)",
+      "file": "traj_baseline.json"
+    }
+  ]
+}

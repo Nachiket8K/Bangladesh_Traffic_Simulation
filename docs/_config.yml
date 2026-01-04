@@ -1,13 +1,12 @@
-title: Bangladesh Transport Network Analysis (EPA1352)
-description: Advanced Simulation Project — Bangladesh transport network (data quality, Mesa simulation, NetworkX model generation, network analysis)
+title: Bangladesh Transport Network Simulation
+description: Data → Network → Simulation → Experiments → Insights (with interactive visualization)
 theme: null
 remote_theme: just-the-docs/just-the-docs
 
-# IMPORTANT: for project pages, baseurl must match your repo name
+# For GitHub project pages, baseurl must match the repo name.
 baseurl: "/Bangladesh_Traffic_Simulation"
 url: "https://nachiket8k.github.io"
 
-# Nice-to-haves
 color_scheme: light
 search_enabled: true
 
@@ -15,7 +14,7 @@ aux_links:
   "GitHub Repository":
     - "https://github.com/Nachiket8K/Bangladesh_Traffic_Simulation"
 
-# Footer / edit links
+# Optional: show “Edit this page”
 gh_edit_link: true
 gh_edit_link_text: "Edit this page on GitHub"
 gh_edit_repository: "https://github.com/Nachiket8K/Bangladesh_Traffic_Simulation"

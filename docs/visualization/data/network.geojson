@@ -1,0 +1,66 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "E1",
+        "is_bridge": false
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            90.35,
+            23.75
+          ],
+          [
+            90.41,
+            23.81
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "E2",
+        "is_bridge": true,
+        "bridge_id": "B123"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            90.41,
+            23.81
+          ],
+          [
+            90.55,
+            23.9
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "edge_id": "E3",
+        "is_bridge": false
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            90.55,
+            23.9
+          ],
+          [
+            90.7,
+            24.0
+          ]
+        ]
+      }
+    }
+  ]
+}

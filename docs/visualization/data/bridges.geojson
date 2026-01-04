@@ -1,0 +1,18 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "bridge_id": "B123"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.48,
+          23.86
+        ]
+      }
+    }
+  ]
+}
