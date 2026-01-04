@@ -1,0 +1,17 @@
+---
+title: "Lab 4 — Network Analysis"
+nav_order: 40
+parent: Labs
+---
+
+# Lab 4 — Network Analysis (Criticality + Vulnerability)
+
+**Goal:** assess which network components matter most (criticality) and which are most sensitive to disruption (vulnerability), using traffic + simulation outputs. :contentReference[oaicite:15]{index=15}
+
+## Highlights
+- Define criticality and vulnerability metrics
+- Use simulation experiments to quantify disruption impacts
+- Visualize high-traffic / high-risk segments :contentReference[oaicite:16]{index=16}
+
+## Deliverables
+- [Report PDF](../assets/reports/assignment-4-network-analysis.pdf)

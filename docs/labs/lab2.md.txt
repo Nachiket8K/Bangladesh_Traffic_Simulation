@@ -1,0 +1,17 @@
+---
+title: "Lab 2 — Component Building"
+nav_order: 20
+parent: Labs
+---
+
+# Lab 2 — Component Building (Mesa)
+
+**Goal:** build simulation components for goods transportation on the Bangladesh road network using **Mesa**, including delay mechanisms (bridges/ferries) and scenario testing. :contentReference[oaicite:11]{index=11}
+
+## Highlights
+- Mesa-based model components
+- Focused prototype on **N1 (Chittagong → Dhaka)** corridor
+- Scenario runs to compare travel times under different conditions :contentReference[oaicite:12]{index=12}
+
+## Deliverables
+- [Report PDF](../assets/reports/assignment-2-component-building.pdf)
