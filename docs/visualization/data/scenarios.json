@@ -1,8 +1,28 @@
 {
   "scenarios": [
     {
-      "label": "Baseline (placeholder)",
-      "file": "traj_baseline.json"
+      "label": "Chittagong Port to Dhaka (baseline)",
+      "file": "traj_chittagong_dhaka_baseline.json"
+    },
+    {
+      "label": "Chittagong Port to Dhaka (Lab scenario 1: A=0.00, B=0.00, C=0.00, D=0.05)",
+      "file": "traj_chittagong_dhaka_lab_scenario_1.json"
+    },
+    {
+      "label": "Chittagong Port to Dhaka (Lab scenario 2: A=0.00, B=0.00, C=0.05, D=0.10)",
+      "file": "traj_chittagong_dhaka_lab_scenario_2.json"
+    },
+    {
+      "label": "Chittagong Port to Dhaka (Lab scenario 3: A=0.00, B=0.05, C=0.10, D=0.20)",
+      "file": "traj_chittagong_dhaka_lab_scenario_3.json"
+    },
+    {
+      "label": "Chittagong Port to Dhaka (Lab scenario 4: A=0.05, B=0.10, C=0.20, D=0.40)",
+      "file": "traj_chittagong_dhaka_lab_scenario_4.json"
+    },
+    {
+      "label": "Chittagong Port to Dhaka (Lab scenario 5: A=0.25, B=0.50, C=0.75, D=1.00)",
+      "file": "traj_chittagong_dhaka_lab_scenario_5.json"
     }
   ]
 }

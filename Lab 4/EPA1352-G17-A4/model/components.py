@@ -78,8 +78,10 @@ class Bridge(Infra):
 
 # ---------------------------------------------------------------
 class Link(Infra):
-
-    trucks_passed = 0
+    def __init__(self, unique_id, model, length=0,
+                 name='Unknown', road_name='Unknown', out=0):
+        super().__init__(unique_id, model, length, name, road_name, out)
+        self.trucks_passed = 0
 
 
 # ---------------------------------------------------------------
@@ -101,7 +103,11 @@ class Sink(Infra):
 
     """
     vehicle_removed_toggle = False
-    removed_traffic = 0
+
+    def __init__(self, unique_id, model, length=0,
+                 name='Unknown', road_name='Unknown', out=0):
+        super().__init__(unique_id, model, length, name, road_name, out)
+        self.removed_traffic = 0
 
     def remove(self, vehicle):
         self.model.schedule.remove(vehicle)
@@ -135,12 +141,19 @@ class Source(Infra):
 
     truck_counter = 0
     generation_frequency = 5
-    vehicle_generated_flag = False
-    generated_traffic = 0
-    waiting_times = 0
-    waiting_freqs = 0
+
+    def __init__(self, unique_id, model, length=0,
+                 name='Unknown', road_name='Unknown', out=0):
+        super().__init__(unique_id, model, length, name, road_name, out)
+        self.vehicle_generated_flag = False
+        self.generated_traffic = 0
+        self.waiting_times = 0
+        self.waiting_freqs = 0
 
     def step(self):
+        if not self.model.is_source_active(self.unique_id):
+            self.vehicle_generated_flag = False
+            return
         # generate the correct number of trucks every step
         for i in range(10):  # do this X times
             if self.random.random() < self.out:  # self.model.schedule.steps % self.generation_frequency == 0:
@@ -157,6 +170,7 @@ class Source(Infra):
             if agent:
                 self.model.schedule.add(agent)
                 agent.set_path()
+                self.model.register_vehicle(agent)
                 Source.truck_counter += 1
                 self.vehicle_count += 1
                 self.vehicle_generated_flag = True
@@ -171,7 +185,10 @@ class SourceSink(Source, Sink):
     """
     Generates and removes trucks
     """
-    pass
+    def __init__(self, unique_id, model, length=0,
+                 name='Unknown', road_name='Unknown', out=0):
+        Source.__init__(self, unique_id, model, length, name, road_name, out)
+        self.removed_traffic = 0
 
 
 # ---------------------------------------------------------------
@@ -255,11 +272,16 @@ class Vehicle(Agent):
         Set the origin destination path of the vehicle
         """
         self.path_ids = self.model.get_route(self.generated_by.unique_id)
+        route_meta = self.model.truck_route_metadata.setdefault(self.unique_id, {})
+        route_meta['origin_id'] = self.generated_by.unique_id
+        route_meta['destination_id'] = self.path_ids[-1]
+        route_meta['route_ids'] = [int(route_id) for route_id in self.path_ids]
 
     def step(self):
         """
         Vehicle waits or drives at each step
         """
+        self.model.record_vehicle_sample(self)
         if self.state == Vehicle.State.WAIT:
             self.waiting_time = max(self.waiting_time - 1, 0)
             self.time_waited += 1
@@ -270,6 +292,8 @@ class Vehicle(Agent):
 
         if self.state == Vehicle.State.DRIVE:
             self.drive()
+
+        self.model.record_vehicle_sample(self)
 
         """
         To print the vehicle trajectory at each step
@@ -295,6 +319,9 @@ class Vehicle(Agent):
         vehicle shall move to the next object with the given distance
         """
 
+        if not self.path_ids or self.location_index >= len(self.path_ids) - 1:
+            return
+
         self.location_index += 1
         next_id = self.path_ids[self.location_index]
         next_infra = self.model.schedule._agents[next_id]  # Access to protected member _agents
@@ -305,6 +332,7 @@ class Vehicle(Agent):
             self.removed_at_step = self.model.schedule.steps
             self.generated_by.waiting_times += self.time_waited
             self.generated_by.waiting_freqs += self.freq_waited
+            self.model.finalize_vehicle(self)
             self.location.remove(self)
             return
         elif isinstance(next_infra, Bridge):
