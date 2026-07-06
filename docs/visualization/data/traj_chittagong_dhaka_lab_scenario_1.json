@@ -1,5 +1,5 @@
 {
-  "scenario_name": "Chittagong Port to Dhaka (baseline)",
+  "scenario_name": "Chittagong Port to Dhaka (Lab scenario 1: A=0.00, B=0.00, C=0.00, D=0.05)",
   "t0": 0,
   "t_end": 565.08,
   "broken_bridges": [],
@@ -7,7 +7,7 @@
     "prob_A": 0.0,
     "prob_B": 0.0,
     "prob_C": 0.0,
-    "prob_D": 0.0
+    "prob_D": 0.05
   },
   "trucks": [
     {

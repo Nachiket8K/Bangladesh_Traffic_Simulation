@@ -19,12 +19,13 @@ main { position: relative; height: calc(100% - 54px); }
   position: absolute; right: 12px; top: 12px;
   background: rgba(255,255,255,0.95); border: 1px solid #e6e6e6;
   border-radius: 10px; padding: 10px 12px; width: 240px;
+  z-index: 1000;
 }
 .legendTitle { font-weight: 700; margin-bottom: 6px; }
 .legendRow { display: flex; align-items: center; gap: 8px; font-size: 12px; margin: 6px 0; }
 .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
 .swatch.road { background: #888; }
-.swatch.bridgeUp { background: #2ecc71; }
+.swatch.bridgeUp { background: #000; }
 .swatch.bridgeDown { background: #e74c3c; }
 .swatch.truck { background: #3498db; border-radius: 50%; }
 .meta { font-size: 12px; opacity: 0.85; }

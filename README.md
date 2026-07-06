@@ -100,4 +100,21 @@ Use the scripts in Stage4_NetworkAnalysis/analysis/ to visualize and analyze res
 
 
 ## License
-This project is for educational purposes as part of the EPA1352 Advanced Simulation course at TU Delft.
+This project is for educational purposes as part of the EPA1352 Advanced Simulation course at TU Delft. 
+### Chittagong-to-Dhaka visualization export 
+ 
+To generate the interactive playback data used by docs/visualization/index.html, run: 
+ 
+```bash 
+cd "Bangladesh_Traffic_Simulation" 
+.venv_fresh\Scripts\python.exe "Lab 4\EPA1352-G17-A4\model\export_visualization.py" 
+``` 
+ 
+This exports: 
+- docs/visualization/data/network.geojson 
+- docs/visualization/data/bridges.geojson 
+- docs/visualization/data/scenarios.json 
+- docs/visualization/data/traj_chittagong_dhaka_baseline.json 
+- docs/visualization/data/traj_chittagong_dhaka_bridge_disruption.json 
+ 
+After exporting, serve the repository over HTTP and open docs/visualization/ in a browser to watch the truck playback.

@@ -13,7 +13,7 @@ let truckMarkers = new Map();
 let scenarioIndex = null;
 let currentScenario = null;
 let t = 0;
-let speed = 1;
+let speed = 4;
 let animHandle = null;
 let isPlaying = false;
 
@@ -37,9 +37,10 @@ function interpTimeline(timeline, t) {
 
 function initMap() {
   map = L.map("map", { preferCanvas: true }).setView([23.685, 90.3563], 7);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
     maxZoom: 19,
-    attribution: "&copy; OpenStreetMap contributors"
+    subdomains: "abcd",
+    attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
   }).addTo(map);
 }
 
@@ -47,7 +48,7 @@ function styleRoad(feature) {
   const isBridge = !!feature.properties?.is_bridge;
   const bridgeId = feature.properties?.bridge_id;
   const broken = currentScenario?.broken_bridges?.includes(bridgeId);
-  if (isBridge) return { weight: 4, opacity: 0.9, color: broken ? "#e74c3c" : "#2ecc71" };
+  if (isBridge) return { weight: 4, opacity: 0.9, color: broken ? "#e74c3c" : "#000000" };
   return { weight: 2, opacity: 0.6, color: "#666" };
 }
 
@@ -67,9 +68,9 @@ async function renderBridges() {
         const id = f.properties?.bridge_id;
         const broken = currentScenario?.broken_bridges?.includes(id);
         return L.circleMarker(latlng, {
-          radius: 6, weight: 1, opacity: 1, fillOpacity: 0.9,
-          color: broken ? "#c0392b" : "#1e8449",
-          fillColor: broken ? "#e74c3c" : "#2ecc71"
+          radius: 3, weight: 1, opacity: 1, fillOpacity: 0.9,
+          color: broken ? "#c0392b" : "#000000",
+          fillColor: broken ? "#e74c3c" : "#000000"
         });
       }
     }).addTo(map);
@@ -130,10 +131,16 @@ function pause() {
   animHandle = null;
 }
 
-async function loadScenario(file) {
+function reset() {
   pause();
   t = 0;
   document.getElementById("timeVal").textContent = "0";
+  clearTrucks();
+  updateTrucks();
+}
+
+async function loadScenario(file) {
+  reset();
 
   currentScenario = await loadJSON(`./data/${file}`);
 
@@ -165,6 +172,7 @@ async function initUI() {
   select.addEventListener("change", (e) => loadScenario(e.target.value));
   document.getElementById("playBtn").addEventListener("click", play);
   document.getElementById("pauseBtn").addEventListener("click", pause);
+  document.getElementById("resetBtn").addEventListener("click", reset);
 
   const speedEl = document.getElementById("speed");
   const speedVal = document.getElementById("speedVal");
