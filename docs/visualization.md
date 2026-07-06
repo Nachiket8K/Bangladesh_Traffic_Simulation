@@ -1,13 +1,28 @@
----
+﻿---
 title: Visualization
 nav_order: 6
 ---
 
 # Visualization (Interactive)
 
-Open the interactive demo:
+This project includes a **GitHub-hostable interactive viewer** under `docs/visualization/`.
 
-Visit docs/visualization/ through a local web server to see the truck playback.
+<div style="display:flex; gap:12px; flex-wrap:wrap; margin:14px 0 18px 0;">
+  <a class="btn btn-primary" href="{{ site.baseurl }}/visualization/">Open Hosted Visualization</a>
+  <a class="btn" href="{{ site.baseurl }}/">Back to Home</a>
+</div>
+
+When this repository is published with **GitHub Pages** from the `docs/` folder, the viewer will be available at:
+
+```text
+{{ site.url }}{{ site.baseurl }}/visualization/
+```
+
+The viewer includes:
+- Chittagong Port → Dhaka truck playback
+- baseline and disrupted bridge scenarios
+- Lab 3 / Lab 4 scenario ladder exports
+- reset, speed control, and scenario switching
 
 ## Generate fresh playback data
 
@@ -22,7 +37,7 @@ From the repository root, regenerate the playback files with:
 This writes updated files into `docs/visualization/data/`.
 
 ## What you can do
-- Pick **baseline** vs **bridge-down** scenarios
+- Pick from **baseline** and multiple **bridge disruption** scenarios
 - Play/pause and change speed
 - See bridge state (up/down) and how delays emerge
 

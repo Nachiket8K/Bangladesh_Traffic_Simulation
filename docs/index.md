@@ -1,4 +1,4 @@
----
+﻿---
 title: Home
 nav_order: 1
 ---
@@ -8,7 +8,7 @@ nav_order: 1
 A simulation and network-analysis project exploring **truck flows on Bangladesh road networks** and how **bridge breakages create delays**.
 
 <div class="fs-5">
-  Use the interactive demo to compare baseline vs disrupted bridge scenarios.
+  Use the interactive demo hosted from the <code>docs/</code> folder to compare baseline vs disrupted bridge scenarios.
 </div>
 
 <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:14px;">
