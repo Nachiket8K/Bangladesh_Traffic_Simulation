@@ -21,20 +21,8 @@ When this repository is published with **GitHub Pages** from the `docs/` folder,
 The viewer includes:
 - Chittagong Port → Dhaka truck playback
 - baseline and disrupted bridge scenarios
-- Lab 3 / Lab 4 scenario ladder exports
+- Processed scenario ladder exports
 - reset, speed control, and scenario switching
-
-## Generate fresh playback data
-
-The visualization is backed by exported simulation output from the Lab 4 model.
-
-From the repository root, regenerate the playback files with:
-
-```bash
-.venv_fresh\Scripts\python.exe "Lab 4\EPA1352-G17-A4\model\export_visualization.py"
-```
-
-This writes updated files into `docs/visualization/data/`.
 
 ## What you can do
 - Pick from **baseline** and multiple **bridge disruption** scenarios
