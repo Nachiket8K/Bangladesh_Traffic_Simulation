@@ -89,24 +89,6 @@ Finally, the repository documents and presents the work through:
 
 ---
 
-## How the assignments fit together
-
-The repository develops through four assignment stages.
-
-### Assignment 1 / Lab 1 — Data quality and cleaning
-This stage establishes the data foundation by cleaning roads, LRPs, and bridge records.
-
-### Assignment 2 / Lab 2 — First corridor-scale model
-This stage narrows the infrastructure to the `N1` corridor and creates the first operational simulation experiments.
-
-### Assignment 3 / Lab 3 — Network model generation
-This stage expands the corridor model into a connected network with side roads, intersections, and graph-based routing.
-
-### Assignment 4 / Lab 4 — Network analysis
-This stage deepens the analysis by connecting simulation outputs to broader questions of criticality and vulnerability.
-
----
-
 ## Main project outputs
 
 The project produces several kinds of outputs:
