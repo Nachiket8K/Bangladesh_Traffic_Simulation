@@ -1,108 +1,119 @@
 # Implementation Plan
 
 [Overview]
-Run the Lab 4 Bangladesh traffic model for a Chittagong-to-Dhaka truck flow and export real trajectory/network files for playback in `docs/visualization/index.html`.
+Create beginner-friendly documentation in the `docs/` site that explains the Assignment 1 data sources and preprocessing workflow, with the first deliverable focused on `docs/method/data.md` and the material in `Lab 1/`.
 
-The repo already contains a working network simulation in `Lab 4/EPA1352-G17-A4/model/` and a separate Leaflet viewer in `docs/visualization/`, but the viewer currently reads placeholder `network.geojson`, `bridges.geojson`, `scenarios.json`, and `traj_*.json` files. The implementation should connect these pieces by exporting real assets from the Lab 4 model into `docs/visualization/data/`.
+The repository already has a Jekyll documentation structure under `docs/`, and the navigation is prepared for a `Data & Preprocessing` page via `docs/method/data.md` and the link in `docs/toc.md`. However, the current page is only a placeholder and does not explain what data exists, where it comes from, how it is structured, or how the Assignment 1 notebooks clean it. The implementation should replace that placeholder with an explanatory document that is understandable to someone who has never seen the repository before.
 
-The chosen approach is to extend the Lab 4 model because it already uses `N1_N2_plus_sideroads.csv`, weighted source/sink demand, bridge delay logic, and shortest-path routing. The implementation must add fixed Chittagong-origin / Dhaka-destination routing, per-truck position logging, GeoJSON export, scenario JSON export, and final browser verification.
+The documentation should use `Lab 1` as the authoritative source for the data-cleaning story because that folder contains the assignment brief, the team report, the notebooks (`TCVData.ipynb`, `RoadsLRP.ipynb`, `Bridges.ipynb`), the raw/processed data artifacts in `Lab 1/data/`, and the assignment-specific README. The content should explain the relationship between the RMMS and BMMS-derived files, identify the key fields used by later labs, and narrate the actual cleaning logic that appears in the notebooks rather than giving only high-level claims.
+
+The documentation should also be honest about limitations and incompleteness visible in the notebooks and report. For example, some bridge-cleaning steps are exploratory and not fully completed, the road-cleaning notebooks rely on heuristics and manual inspection, and later labs may consume cleaned infrastructure files without reproducing every transformation. The page should therefore distinguish between raw inputs, cleaned outputs, implemented cleaning rules, and proposed-but-unfinished next steps.
 
 [Types]
-Add export schemas for network, bridge, scenario, and truck playback data.
+No application type system changes are required; the only structured additions are documentation content sections that describe existing dataset schemas and preprocessing concepts.
 
-- `VisualizationScenarioIndex`: `{ scenarios: list[VisualizationScenarioEntry] }`.
-- `VisualizationScenarioEntry`: `label: str`, `file: str`.
-- `VisualizationScenario`: `scenario_name: str`, `t0: number`, `t_end: number`, `broken_bridges: list[str|int]`, `trucks: list[TruckTrajectory]`.
-- `TruckTrajectory`: `truck_id: str`, `timeline: list[TimelinePoint]`, optional `origin_id`, `destination_id`, `route_ids`.
-- `TimelinePoint`: JSON tuple `[time, lat, lon]`.
-- `NetworkFeature.properties`: `edge_id`, `from_id`, `to_id`, `road`, `is_bridge`, optional `bridge_id`, `bridge_name`, `condition`, `length`.
-- `BridgeFeature.properties`: `bridge_id`, `bridge_name`, `condition`, `road`.
-- Simulation structures: `truck_logs`, `truck_route_metadata`, `selected_origin_id`, `selected_destination_id`.
+- Documentation section structure for `docs/method/data.md`:
+  - `Overview of Assignment 1 Data`
+  - `Where the Data Comes From`
+  - `Core Files Used in Preprocessing`
+  - `Raw vs Processed Data Layout`
+  - `Road Geometry Data: _roads.tcv`
+  - `Road LRP Table: Roads_InfoAboutEachLRP.xlsx`
+  - `Bridge Inventory: BMMS_overview.xlsx`
+  - `Cleaning Workflow Implemented in the Notebooks`
+  - `Known Data Quality Issues`
+  - `Outputs Passed to Later Stages`
+  - `Limitations and Open Questions`
+
+- Dataset descriptions to include explicitly:
+  - `_roads.tcv`: tab-separated road geometry file storing one road per line with repeated `(lrp, lat, lon)` triplets.
+  - `Roads_InfoAboutEachLRP.xlsx`: row-based table of LRPs with road id, coordinates, chainage, and descriptive attributes.
+  - `BMMS_overview.xlsx`: bridge inventory table with bridge identifiers, road/LRP references, coordinates, dimensions, condition, and year/span metadata.
+
+- Validation rules to document in prose:
+  - Latitude/longitude values must be numeric for downstream plotting and network construction.
+  - `road + lrp` or `road + LRPName` combinations are used as location keys during matching and duplicate detection.
+  - Duplicate bridge rows are resolved by preferring rows with fewer missing values and newer construction year ordering in the notebook logic.
+  - Missing or obviously invalid road coordinates are corrected heuristically using neighboring LRP points.
 
 [Files]
-Modify the Lab 4 simulation and docs visualization assets to support real export and playback.
+The implementation only modifies documentation and planning artifacts, while referencing existing Assignment 1 source materials.
 
 - New files to be created:
-  - `Bangladesh_Traffic_Simulation/Lab 4/EPA1352-G17-A4/model/export_visualization.py` - run scenarios and write `network.geojson`, `bridges.geojson`, `scenarios.json`, and `traj_*.json`.
-  - `Bangladesh_Traffic_Simulation/Lab 4/EPA1352-G17-A4/model/route_selection.py` - optional Chittagong/Dhaka endpoint lookup helper.
-  - `Bangladesh_Traffic_Simulation/Lab 4/EPA1352-G17-A4/model/trajectory_utils.py` - optional interpolation/export helpers.
+  - None required for this first documentation slice unless the implementation agent decides to add an image/table partial under `docs/assets/` after confirming it improves clarity.
 
 - Existing files to be modified:
-  - `Bangladesh_Traffic_Simulation/Lab 4/EPA1352-G17-A4/model/model.py` - add fixed origin/destination routing, coordinate lookup data, export metadata, and trajectory recording containers.
-  - `Bangladesh_Traffic_Simulation/Lab 4/EPA1352-G17-A4/model/components.py` - record per-step positions and preserve completion/bridge-delay metadata.
-  - `Bangladesh_Traffic_Simulation/Lab 4/EPA1352-G17-A4/model/model_run.py` - optionally point to the export workflow.
-  - `Bangladesh_Traffic_Simulation/docs/visualization/app.js` - support generated scenario names, real bridge IDs, and any minor shape adjustments.
-  - `Bangladesh_Traffic_Simulation/docs/visualization/data/network.geojson` - replace placeholder network.
-  - `Bangladesh_Traffic_Simulation/docs/visualization/data/bridges.geojson` - replace placeholder bridge data.
-  - `Bangladesh_Traffic_Simulation/docs/visualization/data/scenarios.json` - replace placeholder scenario index.
-  - `Bangladesh_Traffic_Simulation/docs/visualization/data/traj_baseline.json` or new `traj_chittagong_dhaka_*.json` files - replace placeholder trajectories.
-  - `Bangladesh_Traffic_Simulation/docs/visualization.md` and `Bangladesh_Traffic_Simulation/README.md` - document generation and viewing steps.
+  - `implementation_plan.md` - create and maintain this documentation-focused implementation plan.
+  - `docs/method/data.md` - replace the placeholder text with a detailed explanation of Assignment 1 data and preprocessing.
+  - `docs/method.md` - optionally expand the section intro so the `Data & Preprocessing` page is introduced as the Lab 1 foundation of the project.
+  - `docs/index.md` - optionally adjust the home-page summary so newcomers know the documentation now includes a data-origins explanation.
+  - `docs/toc.md` - only modify if the page title or location changes; otherwise leave as-is because it already links to `/method/data/`.
 
-- Files to be deleted or moved: no required deletions; placeholder assets may be overwritten or renamed.
+- Existing source/reference files to read but not modify:
+  - `Lab 1/README.md`
+  - `Lab 1/TCVData.ipynb`
+  - `Lab 1/RoadsLRP.ipynb`
+  - `Lab 1/Bridges.ipynb`
+  - `Lab 1/data/raw/_roads.tcv`
+  - `Lab 1/data/processed/_roads.tcv`
+  - `Lab 1/data/raw/BMMS_overview.xlsx`
+  - `Lab 1/data/processed/BMMS_overview.xlsx`
+  - `EPA1352 Assignment 1 - Data Quality v2.pdf`
+  - `Lab 1/EPA1352-G17-A1.pdf`
 
-- Configuration updates: no new package manifest is required; output paths can live in the export script.
+- Files to be deleted or moved:
+  - None.
+
+- Configuration file updates:
+  - None expected; the current Jekyll front matter in `docs/method/data.md` should remain compatible.
 
 [Functions]
-Add export, routing, interpolation, and trajectory-recording helpers that bridge the Python model and the Leaflet viewer.
+No production-code function changes are required; the work consists of documentation authoring grounded in existing notebook logic.
 
 - New functions:
-  - `find_chittagong_dhaka_endpoints(df) -> tuple[int, int]` in `export_visualization.py` or `route_selection.py`.
-  - `build_network_geojson(df) -> dict` in `export_visualization.py`.
-  - `build_bridges_geojson(df) -> dict` in `export_visualization.py`.
-  - `interpolate_vehicle_position(vehicle) -> tuple[float, float]` in `components.py` or `trajectory_utils.py`.
-  - `record_vehicle_sample(model, vehicle) -> None` in `components.py` or `model.py`.
-  - `export_scenario_json(model, scenario_name, output_path, broken_bridges) -> None` in `export_visualization.py`.
-  - `write_scenario_index(entries, output_path) -> None` in `export_visualization.py`.
-  - `run_visualization_export(...) -> list[dict]` in `export_visualization.py`.
+  - None.
 
 - Modified functions:
-  - `BangladeshModel.__init__` in `Lab 4/EPA1352-G17-A4/model/model.py` - accept `origin_id`, `destination_id`, `record_trajectories`, `scenario_name`, and sampling controls.
-  - `BangladeshModel.generate_model` in `Lab 4/EPA1352-G17-A4/model/model.py` - retain row metadata and coordinate lookup by node ID.
-  - `BangladeshModel.get_route` in `Lab 4/EPA1352-G17-A4/model/model.py` - support fixed Chittagong-to-Dhaka routing.
-  - `Vehicle.set_path`, `Vehicle.step`, `Vehicle.arrive_at_next`, and `Vehicle.drive_to_next` in `Lab 4/EPA1352-G17-A4/model/components.py` - attach route metadata, record samples, and guarantee a final point before removal.
-  - `loadScenario(file)` and `renderNetwork()` in `Bangladesh_Traffic_Simulation/docs/visualization/app.js` - tolerate generated file names and real bridge IDs.
+  - None.
 
-- Removed functions: none.
+- Removed functions:
+  - None.
 
 [Classes]
-Extend the existing Lab 4 model and vehicle classes instead of creating a separate simulation architecture.
+No class modifications are required because the deliverable is repository documentation rather than executable feature work.
 
-- New classes: optional `VisualizationExporter` in `export_visualization.py` with methods such as `build_network_geojson()`, `build_bridges_geojson()`, `run_scenario()`, and `write_outputs()`.
+- New classes:
+  - None.
+
 - Modified classes:
-  - `BangladeshModel` - store coordinate lookup data, support fixed endpoints, expose bridge/export metadata, and maintain trajectory containers.
-  - `Vehicle` - record per-step positions, keep route metadata, and log the final destination position before removal.
-  - `Source` / `SourceSink` - optionally constrain generation to the Chittagong endpoint and avoid cross-run counter leakage.
-  - `Bridge` - expose stable bridge identifiers for export and scenario metadata.
-- Removed classes: none.
+  - None.
+
+- Removed classes:
+  - None.
 
 [Dependencies]
-Reuse the project's existing Python and browser dependencies, with compatibility validation rather than package expansion.
+No dependency changes are required; the existing fresh virtual environment should only be used for inspection or optional validation of notebook-readable assets.
 
-- Existing Python stack already covers the work: `mesa`, `pandas`, `networkx`, and standard library modules like `json`, `pathlib`, and `math`.
-- Existing frontend dependency remains CDN-loaded Leaflet in `docs/visualization/index.html`.
-- No new package should be added unless act-mode testing reveals a real need.
-- Validate that the installed Mesa version still supports the legacy coursework imports.
+- Use the repository’s fresh environment at `.venv_fresh` for any verification commands that need Python.
+- Prefer existing libraries already present in the coursework environment, especially `pandas`, `openpyxl`, and notebook tooling, if the implementation agent wants to inspect spreadsheet headers or sample rows.
+- Do not add packages unless a documentation-generation step proves impossible with the current environment.
 
 [Testing]
-Validate with script-level checks plus manual browser playback of the generated Chittagong-to-Dhaka scenario.
+Testing focuses on documentation accuracy, completeness, and successful site integration rather than unit tests.
 
-- Add runtime validation in the export script: exported network must have features, at least one truck trajectory must exist, timelines must be ordered, and `t_end` must match the last sample.
 - Validation steps:
-  1. Run the export script for a baseline scenario with no broken bridges.
-  2. Confirm `docs/visualization/data/network.geojson` contains a real corridor network instead of the placeholder sample.
-  3. Confirm `scenarios.json` references generated `traj_*.json` files.
-  4. Open `docs/visualization/index.html` and verify trucks move along the Bangladesh network.
-  5. If a bridge-down scenario is added, confirm listed bridges render red.
-  6. Spot-check that the route visually trends from the Chittagong side toward Dhaka.
+  1. Re-read `docs/method/data.md` after editing and confirm it explains the three primary Assignment 1 data assets, their purpose, and their cleaned outputs.
+  2. Confirm every major cleaning claim in the document is traceable to at least one of `Lab 1/TCVData.ipynb`, `Lab 1/RoadsLRP.ipynb`, `Lab 1/Bridges.ipynb`, `Lab 1/README.md`, or `Lab 1/EPA1352-G17-A1.pdf`.
+  3. Ensure the page distinguishes clearly between implemented cleaning steps and unfinished/proposed next steps, especially for bridge-road matching.
+  4. Verify the front matter in `docs/method/data.md` remains valid so the page stays in the Method & Model navigation tree.
+  5. Optionally run a local docs preview or inspect the markdown rendering if a local Jekyll workflow already exists; if not, at minimum check for broken markdown structure.
 
 [Implementation Order]
-Implement the exportable simulation path first, then generate visualization assets, then verify playback end to end.
+Implement the documentation in the order that minimizes re-reading and keeps every narrative section grounded in specific Assignment 1 evidence.
 
-1. Inspect the Lab 4 processed CSV and determine the exact source/sink IDs for the Chittagong-origin and Dhaka-destination flow.
-2. Extend `BangladeshModel` to support fixed endpoint routing and optional trajectory recording containers.
-3. Extend `Vehicle` movement logic to sample and retain per-step geographic positions, including final destination samples.
-4. Build Python export helpers that transform processed network rows into `network.geojson` and `bridges.geojson`.
-5. Implement a scenario runner/export script that executes the Chittagong-to-Dhaka simulation and writes `traj_*.json` plus `scenarios.json` into `docs/visualization/data/`.
-6. Replace placeholder visualization data with generated outputs and update any file naming assumptions in `docs/visualization/app.js`.
-7. Update repository documentation with exact commands for generating assets and opening the visualization.
-8. Run the export workflow, inspect generated files, and verify the result in `docs/visualization/index.html`.
+1. Re-read the current `docs/method/data.md` placeholder and replace its outline with a detailed content structure aligned to newcomer needs.
+2. Inspect the Assignment 1 notebooks and report closely enough to extract exact dataset roles, cleaning steps, heuristics, and limitations.
+3. Cross-check the raw/processed file layout in `Lab 1/data/` so the documentation names the correct source and output artifacts.
+4. Write the new `docs/method/data.md` content, explaining the available data, the required cleaning steps, and how those steps were actually carried out.
+5. Make any minimal supporting updates to `docs/method.md` or `docs/index.md` only if needed to better surface the new page.
+6. Re-read the edited documentation for factual consistency, markdown quality, and alignment with the existing docs navigation.
