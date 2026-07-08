@@ -40,34 +40,6 @@ In the final stage, we analyze the criticality and vulnerability of road segment
 - Experimental design using simulation to assess transport disruptions
 - Data-driven visualization of critical and vulnerable network segments
 
-## File Structure
-
-The repository is organized as follows:
-```
-|EPA1352_Transport_Network_Analysis/
-│
-├── Lab 1/ 				             # Data quality analysis scripts, cleaned data files, and report
-│   ├── data/                       # Raw and processed data for analysis
-│   ├── ipynb files/                # Scripts for data validation and cleaning
-│   └── report.pdf                  # Report detailing data quality issues and solutions
-│
-├── Stage2_ComponentBuilding/       # Component-based simulation model for goods transport
-│   ├── data/                       # Raw and processed data for analysis
-│   ├── experiments/                # Output data from different simulation scenarios
-│   └── report.pdf                  # Report on model design and experimental results
-│
-├── Stage3_NetworkModel/            # Network model generation using NetworkX and Mesa
-│   ├── model/                      # Model and simulation files integrating NetworkX
-│   ├── experiments/                # Simulation results for network-based scenarios
-│   └── report.pdf                  # Report on network generation and analysis
-│
-├── Stage4_NetworkAnalysis/         # Analysis of network criticality and vulnerability
-│   ├── analysis/                   # Analysis scripts and visualizations for network analysis
-│   ├── report.pdf                  # Final report on criticality and vulnerability analysis
-│
-└── README.md                       # Project overview and setup instructions
-```
-
 
 ## Getting Started
 
@@ -75,6 +47,21 @@ The repository is organized as follows:
 - Python 3.x
 - [Mesa](https://mesa.readthedocs.io/)
 - [NetworkX](https://networkx.org/)
+
+
+> ⚠️ **Important: Mesa 3.1+ Compatibility**
+>
+> This project requires **Mesa < 3.1**. In Mesa 3.1, the `BaseScheduler` class and the entire `time` module were **removed** after being deprecated in earlier versions.
+>
+> If you are using Mesa 3.1 or later, you will encounter errors unless you migrate to the new `AgentSet` API.
+>
+> **Migration Guide:**
+> - **Old:** `self.schedule = BaseScheduler(self)` → **New:** `self.agents = AgentSet(self)`
+> - **Old:** `self.schedule.step()` → **New:** `self.agents.do("step")`
+> - Use `self.agents.shuffle()`, `self.agents.select()`, etc., for custom activation logic.
+>
+> See the [Mesa Migration Guide](https://mesa.readthedocs.io/) for detailed instructions.   
+
 
 ### Installation
 1. Clone this repository.
