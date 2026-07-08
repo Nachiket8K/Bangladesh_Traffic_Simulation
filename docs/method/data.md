@@ -6,563 +6,440 @@ nav_order: 1
 
 # Data & Preprocessing
 
-This page explains the **full data preprocessing pipeline of the project**, not just the first cleaning step. Across the repository, preprocessing evolves from **raw infrastructure cleaning** in Assignment 1 to **corridor extraction**, **network assembly**, and finally **traffic-enriched simulation input generation** in later labs.
+This page explains the **data foundation of the project** for readers who are new to the repository. It focuses on data inspection, cleaning, and preparing the infrastructure data that later stages of this project build on.
 
-A useful way to read the repository is:
-- **Lab 1 / Assignment 1:** clean and validate raw road and bridge data
-- **Lab 2 / Assignment 2:** reduce the cleaned data to a modelable N1 corridor
-- **Lab 3 / Assignment 3:** expand that corridor into a connected road network with side roads and intersections
-- **Lab 4 / Assignment 4:** produce a more final simulation-ready network with traffic-based source/sink weights
-
-So, preprocessing in this project is not one isolated notebook. It is a **sequence of transformations** that gradually turns messy infrastructure records into model inputs.
+The short version is:
+- the project depends on **road geometry data** and **bridge inventory data**,
+- those datasets contain missing values, duplicate records, and location errors,
+- the notebooks apply a mix of **type conversion**, **missing-value filtering**, **duplicate resolution**, **visual inspection**, and **neighbor-based coordinate correction**,
+- the cleaned outputs are then intended to support later work on network construction, simulation, and disruption analysis.
 
 ---
 
-## The big picture: what preprocessing is doing
+## Why data preprocessing and cleaning matters
 
-The project ultimately simulates traffic disruptions on Bangladesh’s road network, especially disruptions caused by bridge failure. To do that, the repository needs data that is:
-- geographically plausible,
-- structurally consistent,
-- reduced to the roads relevant for the model,
-- merged into one network representation,
-- enriched with traffic information for source/sink generation.
+Later parts of the repository assume that roads and bridges can be placed on a map with reasonable accuracy. That only works if the underlying coordinates and identifiers are trustworthy.
 
-That means preprocessing serves several different roles across the labs:
-1. **Cleaning** raw or imperfect infrastructure data
-2. **Selecting** the subset of roads and bridges needed for a scenario
-3. **Merging** road and bridge information into one unified table
-4. **Transforming** cumulative chainage into per-link model lengths
-5. **Detecting** intersections and network relationships
-6. **Enriching** the network with traffic demand information
-7. **Exporting** compact processed files for simulation and analysis
+The goal is not just to "load some files," but to answer questions such as:
+- What data is available?
+- Which files represent raw inputs versus processed outputs?
+- What kinds of quality problems appear in the data?
+- Which cleaning steps were actually implemented?
+- Which issues were still unresolved after the assignment?
+
 
 ---
 
-## Main data families used across the project
+## Where the data comes from
 
-According to the assignment materials and notebooks, the project relies on several recurring data families.
+According to the assignment brief, the project relies primarily on two transport-infrastructure data families:
 
-### 1. Road geometry and LRP data
-This data comes from RMMS-style road records and describes:
-- road ids such as `N1`, `N2`, `R...`, `Z...`
-- location reference points (LRPs)
-- latitude and longitude
-- chainage values along the road
-- descriptive fields such as road-side names and crossing labels
+### 1. RMMS road data
+RMMS is the road dataset for Bangladesh’s:
+- **N roads** (National)
+- **R roads** (Regional)
+- **Z roads** (Zila)
 
-These records are the basis for drawing roads, ordering links, and locating intersections.
+This road data is used to determine:
+- where roads are located,
+- how roads are connected,
+- where location reference points (LRPs) lie along each road.
 
-### 2. Bridge inventory data
-This data comes from BMMS-derived bridge files and describes:
-- the road a bridge belongs to
-- `LRPName`
-- coordinates
-- condition
-- length
-- bridge name
-- year of construction
-- chainage / kilometer position
+### 2. BMMS bridge data
+BMMS is the bridge dataset. It describes bridges in terms of:
+- which road they belong to,
+- their LRP reference,
+- their coordinates,
+- their condition,
+- physical characteristics such as length, width, spans, and construction year.
 
-These records are needed because bridges become explicit network elements in the later simulation model.
-
-### 3. Traffic data
-By Lab 4, the preprocessing pipeline also reads traffic tables from `.traffic.htm` files to estimate source/sink demand. This is what allows the final network to support truck generation probabilities rather than just static geometry.
-
-### 4. Derived network/model files
-Later labs produce processed CSV files that are no longer raw infrastructure data. These are model-input datasets where roads, bridges, intersections, and source/sink nodes are already structured for the agent-based model.
+The bridge data matters because later simulations treat bridges as vulnerable assets whose failure can disrupt traffic flow.
 
 ---
 
-## How preprocessing changes from lab to lab
+## Core files used in the Project
 
-The most important thing to understand is that the meaning of “preprocessing” changes over time.
-
-### In Lab 1
-Preprocessing mainly means:
-- fixing types,
-- handling missing values,
-- removing duplicates,
-- correcting spatial outliers,
-- validating whether roads and bridges can be mapped consistently.
-
-### In Lab 2
-Preprocessing becomes:
-- selecting only the N1 corridor,
-- matching the relevant bridges to it,
-- simplifying the cleaned infrastructure into a first corridor model.
-
-### In Lab 3
-Preprocessing becomes:
-- expanding beyond one road,
-- identifying connected side roads,
-- merging roads and bridges into one network dataset,
-- creating model roles such as `sourcesink`, `link`, `bridge`, and `intersection`.
-
-### In Lab 4
-Preprocessing becomes:
-- parameterized network construction,
-- adding traffic demand from traffic HTML files,
-- normalizing inflow and outflow probabilities,
-- compressing detailed link sequences into a sparser simulation-ready network.
-
----
-
-## Lab 1 / Assignment 1: cleaning the raw infrastructure foundation
-
-Assignment 1 is the base of everything that follows. It answers a simple but critical question:
-
-> Can the infrastructure data be trusted enough to use in a model?
-
-The main sources used here are:
-- `Lab 1/README.md`
-- `Lab 1/TCVData.ipynb`
-- `Lab 1/RoadsLRP.ipynb`
-- `Lab 1/Bridges.ipynb`
-- `EPA1352 Assignment 1 - Data Quality v2.pdf`
-- `Lab 1/EPA1352-G17-A1.pdf`
-
-### Core Assignment 1 working files
-The Assignment 1 report centers on three major working files:
+The Assignment 1 report narrows the broad raw datasets down to **three main working files**:
 
 1. **`_roads.tcv`**  
-   A compact road-geometry file containing one road per line with repeated `(lrp, lat, lon)` triplets.
+   A processed road-geometry file derived from RMMS.
 
 2. **`Roads_InfoAboutEachLRP.xlsx`**  
-   A row-based road reference table with one LRP per record.
+   A row-based table with one LRP per record.
 
 3. **`BMMS_overview.xlsx`**  
-   A processed bridge overview dataset used to locate and characterize bridges.
+   A processed bridge overview table derived from BMMS.
 
-### Raw vs processed organization
-Inside `Lab 1/data/`, the folder structure distinguishes:
-- `raw/`
-- `processed/`
+These three files are the backbone of the cleaning work described in the notebooks.
 
-Visible examples include:
+---
+
+## Raw vs processed data layout
+
+
+
+From the repository contents, the most visible stored artifacts are:
 - `raw/_roads.tcv`
 - `processed/_roads.tcv`
 - `raw/BMMS_overview.xlsx`
 - `processed/BMMS_overview.xlsx`
 
-This separation is the repository’s first explicit statement that data should move through a cleaning pipeline rather than be overwritten in place.
+This split communicates an important project convention:
+- **raw** files represent source data or provided baseline processed files,
+- **processed** files represent cleaned or rewritten outputs produced by the notebooks.
 
-### What was done to `_roads.tcv`
-In `TCVData.ipynb`, the preprocessing workflow does the following:
-
-1. Read the tab-separated file using Python’s CSV tools.
-2. Expand the repeated triplet structure into a normal pandas table with:
-   - `road`
-   - `lrp`
-   - `lat`
-   - `lon`
-3. Drop non-data rows and reset the index.
-4. Convert latitude and longitude values from strings into floats.
-5. Detect outlier coordinates road by road.
-6. Repair implausible points using neighboring values or trend extension.
-7. Rebuild the cleaned data back into TCV format.
-8. Write the result to `data/processed/_roads.tcv`.
-
-This is an important pattern for the whole project: the team temporarily expands a hard-to-use source format into a table, cleans it, and then exports it again in a format later tooling expects.
-
-### What was done to `Roads_InfoAboutEachLRP.xlsx`
-In `RoadsLRP.ipynb`, the preprocessing workflow does the following:
-
-1. Load the Excel file into pandas.
-2. Inspect missing values, especially missing latitude values.
-3. Examine suspicious rows and row clusters.
-4. Plot roads such as `N1` to visually identify coordinate spikes.
-5. Try a moving-window median-based outlier filter.
-6. Introduce a stricter neighbor-based correction pass for remaining spikes.
-7. Compute geometry-derived travel distance and compare it with chainage.
-
-This notebook adds a second validation layer: it is not only cleaning coordinates, but also checking whether the road’s geometry and recorded progression along the road tell a consistent story.
-
-### What was done to `BMMS_overview.xlsx`
-In `Bridges.ipynb`, the preprocessing workflow does the following:
-
-1. Load the bridge overview file.
-2. Create a location-based identifier:
-   - `UniqueID = road + LRPName`
-3. Check duplicate-like entries using both `UniqueID` and `structureNr`.
-4. Count missing values across the most relevant columns.
-5. Sort bridges by road, LRP, amount of missingness, and construction year.
-6. Deduplicate by road/LRP while preferring more complete and newer-looking records.
-7. Compare bridge location keys against road location keys.
-8. Outline next reconciliation steps for mismatched bridge and road references.
-
-This bridge work is explicitly useful but incomplete: it begins the process of aligning bridges with roads, but the notebook itself notes that a full reconciliation pipeline was not finished.
-
-### Why Lab 1 matters for later labs
-Lab 1 turns messy infrastructure data into a baseline that later assignments can trust more. Without this stage:
-- roads would be plotted with spikes or breaks,
-- bridges could drift off roads,
-- chainage-based reasoning would be less reliable,
-- later network building would inherit avoidable errors.
+The road-LRP spreadsheet `Roads_InfoAboutEachLRP.xlsx` is referenced heavily in the notebooks and report as a core road table.
 
 ---
 
-## Lab 2 / Assignment 2: reducing the infrastructure to the N1 corridor
+## Dataset 1: Road geometry in `_roads.tcv`
 
-By Lab 2, preprocessing is no longer only about cleaning. It becomes about **selecting and simplifying the relevant subset of the infrastructure** for a first operational model.
+### What the file contains
+`_roads.tcv` stores road geometry in a compact tab-separated format.
 
-The clearest source here is:
-- `Lab 2/dataPreProcessing.ipynb`
+Instead of storing one row per point, it stores **one road per line**, followed by repeated groups of:
+- `lrp`
+- `lat`
+- `lon`
 
-### Main input files in Lab 2
-The notebook loads:
-- `data/_roads3.csv`
+Conceptually, a row looks like this:
+
+```text
+road_name   lrp1 lat1 lon1 lrp2 lat2 lon2 ... lrpN latN lonN
+```
+
+This means the file is efficient for storage, but inconvenient for analysis. Most data-cleaning operations are easier in a normal table with one point per row.
+
+### Why it matters
+This file controls the **shape of the road network**. If one LRP has the wrong coordinates, the plotted road can suddenly jump hundreds of kilometers away, creating spikes or broken geometry.
+
+### Problems identified
+From the notebooks and report, the main issues with `_roads.tcv` are:
+- coordinates initially being treated as strings,
+- coordinate outliers that create large spikes in the map,
+- some roads having suspicious or incomplete geometry,
+- downstream bridge placement being affected if the road coordinates are wrong.
+
+---
+
+## Dataset 2: Road LRP table in `Roads_InfoAboutEachLRP.xlsx`
+
+### What the file contains
+This spreadsheet stores **one LRP per row**. Based on the report and notebook usage, the important columns include:
+- `road`
+- `lrp`
+- `lat`
+- `lon`
+- `chainage`
+- `name`
+
+### Why it matters
+This file is much easier to inspect than `_roads.tcv` because each LRP is already a separate row. It acts as a detailed road reference table and is useful for:
+- plotting roads,
+- checking missing values,
+- comparing coordinate continuity,
+- comparing geometric distance against chainage.
+
+### Problems identified
+The report and notebooks mention several issues:
+- rows with missing latitude values,
+- road-name anomalies that should not represent real roads,
+- coordinate spikes and local outliers,
+- inconsistencies between geometric distance and chainage,
+- varying decimal precision in coordinates,
+- a noisy `name` field with typos that limit its usefulness.
+
+---
+
+## Dataset 3: Bridge inventory in `BMMS_overview.xlsx`
+
+### What the file contains
+This file is the bridge dataset used for later modeling. Important fields called out in the report and assignment brief include:
+- `road`
+- `km`
+- `type`
+- `LRPName`
+- `name`
+- `length`
+- `condition`
+- `structureNr`
+- `chainage`
+- `width`
+- `constructionYear`
+- `spans`
+- `lat`
+- `lon`
+
+### Why it matters
+Bridges are later treated as critical network elements. To simulate bridge failure meaningfully, the model needs bridges to be:
+- attached to the correct road,
+- located at plausible coordinates,
+- represented once rather than duplicated many times.
+
+### Problems identified
+The report highlights several bridge-data issues:
+- duplicate bridge-like entries,
+- missing spans and construction years,
+- some bridges with no coordinates,
+- bridge LRPs that do not map cleanly to road LRPs,
+- bridge coordinates that can differ from road coordinates for the same location.
+
+---
+
+## Cleaning workflow implemented in the notebooks
+
+The cleaning work is split across multiple notebooks. Each notebook has a different focus.
+
+---
+
+### Notebook: `TCVData.ipynb`
+
+This notebook cleans the `_roads.tcv` road-geometry file.
+
+#### Step 1: Read the tab-separated TCV file
+The notebook opens the file with Python’s `csv` reader and uses a tab delimiter.
+
+#### Step 2: Reshape the file into a DataFrame
+Because `_roads.tcv` stores one road per line with repeated triplets, the notebook expands it into a row-based table with columns:
+- `road`
+- `lrp`
+- `lat`
+- `lon`
+
+This is a key preprocessing step because it converts a compact storage format into something pandas can work with.
+
+#### Step 3: Drop non-data rows
+The notebook explicitly drops the first two rows and resets the index. This suggests the imported structure contains header-like or otherwise non-usable entries that interfere with analysis.
+
+#### Step 4: Convert coordinate types
+The notebook checks for nulls and then converts latitude and longitude values into floats. This is necessary because the raw read treats values as strings, but plotting and distance logic require numeric coordinates.
+
+#### Step 5: Detect and correct coordinate outliers
+The central cleaning logic is road-by-road neighbor comparison. The notebook loops over each road and compares each point to surrounding points. When a point is far from its neighbors, it is treated as an outlier and corrected using local interpolation or trend extension.
+
+The implemented logic includes several cases:
+- **point far from both neighbors** → replace with the average of surrounding points,
+- **point far from previous points only** → extend the earlier local trend,
+- **last point is implausible** → extrapolate from previous points,
+- **first point is implausible** → extrapolate from later points.
+
+This is a heuristic method, not a formal GIS correction pipeline. Its strength is that it preserves most of the road while repairing obvious spikes.
+
+#### Step 6: Rebuild and write the cleaned TCV file
+After correction, the notebook reconstructs the TCV-style string format and writes a cleaned file to:
+
+- `data/processed/_roads.tcv`
+
+So the notebook not only analyzes the road data but also recreates the output in the same format expected by downstream tooling.
+
+---
+
+### Notebook: `RoadsLRP.ipynb`
+
+This notebook cleans the row-based road LRP spreadsheet.
+
+#### Step 1: Load the Excel file
+The notebook reads:
+
+- `data/Roads_InfoAboutEachLRP.xlsx`
+
+into a pandas DataFrame.
+
+#### Step 2: Inspect missing values
+It checks `isnull().sum()` and then specifically examines rows where `lat` is missing. The notebook comments indicate that missing values often occur in row clusters and that many such rows can be dropped because they do not carry useful point-location information.
+
+#### Step 3: Visualize roads to find spikes
+The notebook uses scatter plots, such as plotting road `N1`, to inspect whether coordinates follow a sensible spatial pattern. This visual step is important because many of the problems are geometric rather than purely tabular.
+
+#### Step 4: Apply a moving-window outlier filter
+An early cleaning attempt computes rolling median-based bounds over neighboring points and checks whether the current point falls outside a tight tolerance. If it does, the point is repositioned between adjacent points.
+
+The notebook tracks whether longitude (`Xchanged`) and/or latitude (`Ychanged`) were altered. This is useful both for debugging and for understanding how aggressive the cleaning was.
+
+#### Step 5: Apply a stricter neighbor-based correction pass
+The notebook then introduces a stronger algorithm, again marked as long-running, that handles several special cases similarly to `TCVData.ipynb`:
+- internal spikes,
+- start-of-road anomalies,
+- end-of-road anomalies,
+- points inconsistent with local trends.
+
+This second pass reflects a practical insight from the notebook itself: the first method did not catch enough bad values.
+
+#### Step 6: Compare geometry-derived distance to chainage
+The notebook defines a `haversine` helper and also computes cumulative distance across successive points. It then compares that derived distance to the provided `chainage` column.
+
+This serves two purposes:
+- it checks whether the cleaned geometry behaves more realistically,
+- it reveals remaining disagreement between mapped coordinates and recorded road progression.
+
+#### What this notebook contributes
+This notebook is not just about fixing coordinates. It also helps interpret what the road data means structurally by comparing:
+- spatial position,
+- sequential LRPs,
+- cumulative travel distance,
+- official chainage values.
+
+---
+
+### Notebook: `Bridges.ipynb`
+
+This notebook focuses on cleaning and reconciling the bridge inventory.
+
+#### Step 1: Load the bridge overview file
+The notebook reads:
+
 - `data/BMMS_overview.xlsx`
 
-This shows an important project transition:
-- later labs do not go all the way back to the original RMMS/BMMS raw formats,
-- they reuse already processed road and bridge tables,
-- preprocessing now focuses on **model relevance** rather than basic cleaning only.
+into pandas.
 
-### Main preprocessing steps in Lab 2
-The Lab 2 notebook performs the following steps:
+#### Step 2: Build a location-based bridge identifier
+It creates:
 
-1. **Select the N1 corridor**
-   - Filter the road dataset to `road == 'N1'`
-   - Filter the bridge dataset to `road == 'N1'`
+```python
+UniqueID = road + LRPName
+```
 
-2. **Reduce bridge columns to what the model needs**
-   Keep fields such as:
-   - `road`
-   - `LRPName`
-   - `condition`
-   - `length`
-   - `chainage`
-   - `lat`
-   - `lon`
-   - `name`
-   - `km`
-   - `constructionYear`
+This is used as a practical location key so bridges can be compared by their reported road/LRP combination.
 
-3. **Visually compare road and bridge geometry**
-   Plot road points and bridge points together to see whether they align spatially.
+#### Step 3: Check duplicates
+The notebook checks duplicates in two ways:
+- duplicate `UniqueID` values,
+- duplicate `structureNr` values.
 
-4. **Check LRP overlap between roads and bridges**
-   Compare bridge `LRPName` values against road `lrp` values to count:
-   - coinciding LRPs,
-   - bridge LRPs missing from the road table.
+This matters because the data may include multiple records for the same apparent location, while `structureNr` remains unique.
 
-5. **Flag duplicates**
-   Detect duplicate bridge LRPs and duplicate road LRPs.
-
-6. **Convert cumulative chainage into segment lengths**
-   The notebook converts road `chainage` values into a `length` column, then backward-differences them so each row represents a segment length instead of cumulative distance from the road origin.
-
-7. **Remove unwanted bridge duplicates**
-   The notebook filters out one side of left/right bridge duplicates by inspecting bridge names and then sorts/deduplicates bridges by `road`, `km`, and `constructionYear`.
-
-### What Lab 2 preprocessing achieves
-Lab 2 produces a **corridor-scale dataset** rather than a nationwide infrastructure dataset. This is a crucial narrowing step:
-- it focuses the model on the Chittagong–Dhaka route,
-- it removes irrelevant roads,
-- it simplifies bridge records to those needed for the assignment,
-- it prepares road lengths for simulation logic.
-
-In other words, Lab 2 turns cleaned infrastructure into a **first model-ready corridor representation**.
-
----
-
-## Lab 3 / Assignment 3: building a connected road network
-
-In Lab 3, preprocessing evolves again. It is now about building a **connected network dataset** from cleaned roads and bridges.
-
-The most informative source is:
-- `Lab 3/EPA1352-G17-A3/notebook/Data_Processing.ipynb`
-
-### Main input files in Lab 3
-The notebook loads:
-- `../data/raw/_roads3.csv`
-- `../data/raw/BMMS_overview.xlsx`
-
-Even though these are placed under a `raw` folder in the Assignment 3 structure, they are already model-oriented processed inputs relative to the original Assignment 1 infrastructure cleaning stage.
-
-### Main preprocessing steps in Lab 3
-
-1. **Keep the main roads `N1` and `N2`**
-   This widens the scope from one corridor to a larger backbone.
-
-2. **Identify side roads**
-   The notebook looks for road ids that appear inside the `name` field of the main-road records. This is used to infer crossroads and side-road connections.
-
-3. **Filter side roads by end-point chainage**
-   Only side roads whose `LRPE` chainage exceeds a threshold are kept. This removes very short or less relevant roads.
-
-4. **Convert cumulative chainage into segment lengths**
-   As in Lab 2, cumulative road progression is transformed into per-segment lengths usable in the model.
-
-5. **Filter bridge data to relevant roads**
-   Bridges are reduced to those on the selected roads and deduplicated by `road`, `km`, and `constructionYear`.
-
-6. **Rename and merge road and bridge records**
-   `LRPName` is renamed to `lrp`, and roads and bridges are merged into a single dataframe on:
-   - `road`
-   - `lrp`
-
-7. **Assign model roles**
-   The merged table receives a `model_type` column:
-   - `sourcesink` for `LRPS` and `LRPE`
-   - `link` for ordinary road points
-   - `bridge` where bridge condition data is present
-
-8. **Fill missing values after merging**
-   The notebook fills missing chainage, coordinates, names, and lengths from the bridge or road side of the merge.
-
-9. **Sort and standardize the unified network table**
-   Keep and rename only the columns useful for the model, then add integer ids.
-
-10. **Detect intersections spatially**
-    The notebook compares coordinates across roads and marks near-coincident non-bridge records as `intersection` nodes.
-
-11. **Standardize source/sink naming**
-    The notebook renames source/sink nodes to a convention like `SoSi1`, `SoSi2`, etc.
-
-12. **Keep only side roads that truly connect**
-    Roads without proper intersections to `N1` or `N2` are filtered out.
-
-### What Lab 3 preprocessing achieves
-Lab 3 does something new: it creates a **network representation** rather than just a cleaned table.
-
-That means preprocessing now includes:
-- role assignment,
-- topological inference,
-- bridge-road merging,
-- intersection creation,
-- ID standardization.
-
-This is the point where data preprocessing starts to become indistinguishable from **network construction**.
-
----
-
-## Lab 4 / Assignment 4: producing a simulation-ready, traffic-enriched network
-
-By Lab 4, preprocessing is closest to a reproducible data-engineering workflow. It combines infrastructure, topology, and demand information into the final dataset used for simulation.
-
-The main source is:
-- `Lab 4/EPA1352-G17-A4/notebook/data_processing.py`
-
-### Main input files in Lab 4
-The script loads:
-- `../data/raw/_roads3.csv`
-- `../data/raw/BMMS_overview.xlsx`
-- traffic HTML files from `../data/raw/traffic/`
-
-### Main preprocessing steps in Lab 4
-
-1. **Parameterize the road-selection logic**
-   The script explicitly sets:
-   - main roads (`N1`, `N2`)
-   - the road type to include (for example, `N`)
-   - a minimum required side-road length
-
-   This makes the preprocessing more configurable than in earlier labs.
-
-2. **Identify and filter side roads systematically**
-   As in Lab 3, side roads are inferred from the `name` field and then filtered by road type and minimum length.
-
-3. **Convert cumulative chainage into segment lengths**
-   The script creates per-segment `length` values from cumulative chainage.
-
-4. **Filter and deduplicate bridges**
-   It keeps relevant bridge columns, removes left-side duplicates based on bridge-name patterns, and deduplicates by `road`, `km`, and `constructionYear`.
-
-5. **Merge roads and bridges into one table**
-   The script merges both datasets on `road` and `lrp`, then creates `model_type` values such as:
-   - `sourcesink`
-   - `link`
-   - `bridge`
-
-6. **Fill missing information from either side of the merge**
-   Coordinates, names, lengths, and chainage are completed from whichever dataset contains the usable value.
-
-7. **Infer intersections by spatial proximity**
-   The script compares coordinates of records on different roads and marks close-enough matches as `intersection` nodes.
-
-8. **Standardize naming conventions**
-   - source/sink names become `SoSi1`, `SoSi2`, etc.
-   - bridge names are moved into a dedicated `bridge_name` column
-   - placeholder bridge names are repaired if missing
-
-9. **Read traffic demand from `.traffic.htm` files**
-   For each source/sink, the script opens the corresponding road traffic HTML file and locates the closest traffic record by chainage.
-
-10. **Create `in` and `out` demand columns**
-    Traffic values are stored as incoming and outgoing flows. If a road file contains one-way entries separately, those are preserved; otherwise traffic is split evenly.
-
-11. **Normalize traffic to probabilities**
-    Total incoming and outgoing traffic is summed, and each source/sink is converted into a share of total demand. This turns raw traffic counts into simulation generation probabilities.
-
-12. **Compress consecutive links into a sparser network**
-    The script merges runs of consecutive `link` rows into larger links, keeping a representative row and accumulated length. This reduces the final network complexity while preserving its structure.
-
-13. **Export the final processed network file**
-    The result is written to:
-
-- `../data/processed/N1_N2_plus_sideroads.csv`
-
-### What Lab 4 preprocessing achieves
-Lab 4 creates the most complete project-wide preprocessing output:
-- roads, bridges, and intersections are already unified,
-- segment lengths are simulation-ready,
-- source/sinks are explicit,
-- traffic demand has been attached,
-- the network has been sparsified for efficient simulation.
-
-This is the clearest example of preprocessing as **final model input generation**.
-
----
-
-## A cross-lab preprocessing storyline
-
-The easiest way to understand the repository is to see each lab as one stage in a larger pipeline.
-
-### Stage 1 — Clean the infrastructure
-**Lab 1** checks whether roads and bridges can be trusted at all.
-
-Main tasks:
-- convert coordinate types,
-- inspect missing values,
-- repair coordinate spikes,
-- remove or reduce duplicates,
-- compare bridge and road references.
-
-### Stage 2 — Build a first focused model corridor
-**Lab 2** narrows the infrastructure down to the N1 route.
-
-Main tasks:
-- isolate relevant roads and bridges,
-- simplify fields,
-- compare LRPs,
-- convert cumulative chainage to segment lengths,
-- produce a corridor-specific input.
-
-### Stage 3 — Turn corridor data into a network
-**Lab 3** expands to a connected network with side roads and intersections.
-
-Main tasks:
-- select N1/N2 and side roads,
-- merge road and bridge tables,
-- assign model roles,
-- infer intersections,
-- standardize ids and names.
-
-### Stage 4 — Add traffic and export the final model dataset
-**Lab 4** enriches the network with demand information and exports the simulation-ready CSV.
-
-Main tasks:
-- parameterized road filtering,
-- traffic extraction from HTML,
-- demand normalization,
-- sparsification of links,
-- final processed export.
-
----
-
-## Key preprocessing techniques used across the project
-
-Although each lab has a different objective, several preprocessing techniques keep reappearing.
-
-### Type conversion
-Coordinates and chainage values are repeatedly converted into numeric types so they can be compared, plotted, or transformed.
-
-### Filtering and subsetting
-Later labs repeatedly filter the data by:
-- road id,
-- road type,
-- bridge relevance,
-- minimum chainage/length,
-- spatial proximity.
-
-### Deduplication
-Both bridges and sometimes road references are deduplicated using practical rules such as:
-- keep the newest entry,
-- keep the most complete entry,
-- remove left/right duplicate bridge records.
-
-### Coordinate repair and plausibility checks
-The early labs rely on visual plots and neighborhood-based rules to identify impossible geometry and replace bad coordinates.
-
-### Merge-based integration
-Roads and bridges are repeatedly joined on shared keys like:
+#### Step 4: Rank rows by completeness
+The notebook creates a `count_NaN` column over the most relevant bridge attributes. It then sorts rows by:
 - `road`
-- `lrp` / `LRPName`
+- `LRPName`
+- `count_NaN`
+- `constructionYear` (descending)
 
-### Role assignment for simulation
-By Labs 3 and 4, preprocessing explicitly creates simulation semantics such as:
-- `sourcesink`
-- `link`
-- `bridge`
-- `intersection`
+This is a very practical deduplication strategy:
+- prefer rows with **fewer missing fields**,
+- among similar rows, prefer the one that appears **newer**.
 
-### Demand enrichment
-Lab 4 adds traffic data and converts it into normalized generation probabilities.
+#### Step 5: Drop duplicates by road/LRP combination
+After sorting, the notebook removes duplicates on:
+- `road`
+- `LRPName`
+
+keeping the first record in the sorted order.
+
+#### Step 6: Compare bridge LRPs to road LRPs
+The notebook then loads the road-LRP data and constructs similar `UniqueID` values on the road side. It compares the set of bridge location keys against road location keys to estimate how many bridges can be mapped directly onto road LRPs.
+
+This is an important integration step because bridges are only useful for later simulation if they can be attached to the road network.
+
+#### Step 7: Record unfinished next steps
+The notebook explicitly says the cleaning was not fully completed. It proposes the next reconciliation logic:
+- if a bridge LRP exists in road LRPs and coordinates match, keep it,
+- if the LRP exists but coordinates differ slightly, decide which coordinate source to trust,
+- if the LRP does not exist, inspect naming or mapping inconsistencies and repair them.
+
+#### Output
+The cleaned bridge table is written out as an Excel file in processed form.
 
 ---
 
-## Main outputs produced along the way
+## What kinds of cleaning were required?
 
-The outputs change as preprocessing matures.
+Across the notebooks, the required cleaning falls into a few recurring categories.
 
-| Stage | Typical output | Purpose |
-|---|---|---|
-| Lab 1 | cleaned `_roads.tcv`, cleaned `BMMS_overview.xlsx` | repair and validate infrastructure data |
-| Lab 2 | N1-focused corridor table(s) | run a simplified single-corridor model |
-| Lab 3 | merged road-bridge network dataset | represent a connected multi-road network |
-| Lab 4 | `N1_N2_plus_sideroads.csv` | final simulation-ready network with demand information |
+### 1. Data-type correction
+Some coordinates were not initially usable as numbers. They had to be converted from strings into floats before any plotting or distance logic could work.
+
+### 2. Missing-value handling
+Rows with missing critical coordinates had to be identified and, in some cases, removed or deprioritized.
+
+### 3. Duplicate resolution
+Bridge records were not always unique at the road/LRP level, so deduplication rules were needed.
+
+### 4. Geometric outlier correction
+Some road points produced obvious spatial spikes. These were corrected using neighboring points and local trend assumptions.
+
+### 5. Cross-dataset consistency checking
+Road and bridge datasets had to be compared through shared identifiers such as road name and LRP name.
+
+### 6. Plausibility checking with derived measures
+For roads, cumulative distance was compared with chainage to see whether geometry and progression along the road were telling a consistent story.
 
 ---
 
-## What the current `data.md` needed beyond Assignment 1
+## Known data quality issues
 
-Originally, this page mainly explained the Assignment 1 cleaning work. That was useful, but incomplete for the repository as a whole.
+The report and notebooks make it clear that the data is usable, but not clean by default.
 
-To explain the full project preprocessing process, the page also needs to show:
-- how later labs reuse cleaned road and bridge data,
-- how preprocessing shifts from cleaning to model selection,
-- how roads and bridges are merged into one network structure,
-- how intersections are inferred,
-- how traffic demand is incorporated,
-- how the final simulation input file is produced.
+### Road-related issues
+- coordinates imported in an inconvenient type format,
+- outlier LRPs creating long visual spikes,
+- missing coordinate rows,
+- chainage values that may not align perfectly with geometry,
+- name-field inconsistencies and typos,
+- possible cases where road updates changed geometry more than identifiers.
 
-That full progression is what makes the rest of the repository understandable.
+### Bridge-related issues
+- duplicate bridge-like records at the same apparent location,
+- missing spans, years, or coordinates,
+- LRPs that do not map neatly onto the road dataset,
+- coordinate disagreement between bridge and road sources.
+
+---
+
+## Outputs passed to later stages
+
+The purpose of data preprocessing is to prepare inputs for the next phases of the project.
+
+The cleaned outputs support later work by providing:
+- a cleaner `_roads.tcv` for road geometry,
+- a cleaner bridge overview table,
+- better confidence that roads and bridges can be mapped into a network,
+- a basis for later network generation and traffic simulation.
+
+In practical terms, later assignments depend on Assignment 1 to reduce the risk that:
+- roads are drawn in the wrong place,
+- bridges float away from their roads,
+- disruptions are simulated on incorrect assets.
 
 ---
 
 ## Limitations and open questions
 
-Even across all labs, preprocessing remains partly heuristic.
+### Heuristic methods
+Much of the road cleaning is based on local-neighbor heuristics. These are effective for obvious spikes, but they are not guaranteed to reconstruct the true geometry in every case.
 
-### Infrastructure cleaning is not fully automatic
-Many early corrections rely on visual inspection or neighborhood assumptions rather than authoritative external validation.
+### Partial bridge reconciliation
+The bridge notebook begins the road-bridge matching process but does not fully complete it. The notebook itself documents intended next steps rather than a fully finished reconciliation pipeline.
 
-### Bridge-road reconciliation is only partially resolved in the early work
-The notebooks clearly improve bridge placement, but they also document unfinished reconciliation logic.
+### Not every field was equally important
+The team prioritized fields most relevant to later simulation work, especially:
+- road placement,
+- bridge placement,
+- bridge condition,
+- mapping consistency.
 
-### Some preprocessing rules are assignment-specific
-For example:
-- filtering only N1,
-- keeping only certain side roads,
-- using minimum road length thresholds,
-- removing one side of a left/right bridge pair,
-- sparsifying consecutive links.
+Other attributes were less central if they did not directly affect network structure or disruption behavior.
 
-These choices are appropriate for the model goals, but they are not universal data-cleaning rules.
-
-### Folder naming does not always reflect the full data history
-Later labs may refer to files as `raw` within the assignment folder even though those files are already the result of earlier processing steps in the broader project timeline.
+### Later assignments may rely on cleaned outputs without replaying every step
+The repository contains the notebooks and processed files, but later parts of the project may consume the cleaned data as an established baseline rather than rerunning Assignment 1 from scratch each time.
 
 ---
 
 ## Summary
 
-The preprocessing pipeline in this repository develops in stages.
+Data preprocessing and Cleaning establishes the project’s data foundation.
 
-- **Lab 1** cleans and validates roads, LRPs, and bridges.
-- **Lab 2** extracts a usable N1 corridor model from those cleaned datasets.
-- **Lab 3** merges roads, bridges, side roads, and inferred intersections into a connected network dataset.
-- **Lab 4** adds traffic demand, standardizes source/sink behavior, compresses the network, and exports a final simulation-ready CSV.
+It introduces three main infrastructure datasets:
+- `_roads.tcv` for road geometry,
+- `Roads_InfoAboutEachLRP.xlsx` for detailed road reference points,
+- `BMMS_overview.xlsx` for bridge inventory data.
 
-So the preprocessing story of the project is not just “clean some files.” It is a multi-assignment process that gradually transforms infrastructure records into a structured network model that later experiments and simulations can actually use.
+The preprocessing work then:
+- converts coordinates into usable numeric types,
+- removes or deprioritizes incomplete records,
+- resolves bridge duplicates,
+- corrects obvious road-coordinate spikes,
+- compares spatial data against chainage and cross-dataset identifiers,
+- writes cleaned outputs for later modeling stages.
+
+If you are trying to understand how the rest of the repository works, this is the best place to start: later network and simulation work only makes sense because this earlier step turns messy infrastructure data into something that can be analyzed more reliably.
